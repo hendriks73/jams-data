@@ -60,6 +60,12 @@ def fill_file_metadata(jam, artist, title, track_id):
     jam.file_metadata.identifiers = jams.Sandbox(msd_id=track_id)
 
 
+def fix_genre_name(genre):
+    """Normalize genre to all lowercase. Underscores are replaced with
+    '/', as in Pop_Rock -> Pop/Rock. Leading/trailing whitespace is removed."""
+    return genre.strip().lower().replace('_', '/')
+
+
 def load_tagtraum_dataset(tagtraum_dataset):
     """Completely read tagtraum genre dataset into memory."""
     logging.info('Loading tagtraum dataset...')
@@ -72,13 +78,13 @@ def load_tagtraum_dataset(tagtraum_dataset):
             tokens = line.strip().split('\t')
             if len(tokens) == 2:
                 track_id = tokens[0]
-                genre = tokens[1]
+                genre = fix_genre_name(tokens[1])
                 tagtraum_values[track_id] = [genre]
                 genres.add(genre)
             elif len(tokens) == 3:
                 track_id = tokens[0]
-                majority_genre = tokens[1]
-                minority_genre = tokens[2].strip()
+                majority_genre = fix_genre_name(tokens[1])
+                minority_genre = fix_genre_name(tokens[2])
                 tagtraum_values[track_id] = [majority_genre, minority_genre]
                 genres.add(majority_genre)
                 genres.add(minority_genre)
